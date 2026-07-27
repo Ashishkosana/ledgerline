@@ -5,6 +5,19 @@ customer twice on a retry, and never loses track of a payment when a downstream
 step fails. The failure-handling machinery that Stripe usually hides is built
 here from scratch.
 
+## Demo
+
+![ledgerline API (Swagger UI)](docs/api.png)
+
+Idempotency in action -- the same `Idempotency-Key` sent twice returns the *same*
+payment, so a retried request never double-charges:
+
+```text
+POST /payments  key=demoA  -> {"id":"91d5c520...","amount_cents":500,"state":"created"}
+POST /payments  key=demoA  -> {"id":"91d5c520...","amount_cents":500,"state":"created"}   # same key -> SAME payment
+POST /payments  key=demoB  -> {"id":"17b9e1ac...","amount_cents":500,"state":"created"}   # new key  -> new payment
+```
+
 ## The problem it solves
 
 Money software has two classic failure modes:
